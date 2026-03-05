@@ -1,0 +1,26 @@
+name: Hourly Uptime Check
+on:
+  schedule:
+    - cron: '0 * * * *'  # Runs every hour
+  workflow_dispatch:      # Allows you to run it manually for the client
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - name: Install dependencies
+        run: pip install requests
+      - name: Run Monitor
+        run: python monitor.py
+      - name: Commit Logs
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add uptime_log.txt
+          git commit -m "Update uptime logs" || exit 0
+          git push
